@@ -70,9 +70,13 @@ class Program
         POINT currentPos;
         GetCursorPos(out currentPos);
 
-        Cursor.Position = new System.Drawing.Point(currentPos.X + 1, currentPos.Y);
+        Random random = new Random();
+        int randomX1 = random.Next(1, 31);
+        int randomX2 = random.Next(1, 31);
+
+        Cursor.Position = new System.Drawing.Point(currentPos.X + randomX1, currentPos.Y);
         Thread.Sleep(50); // Short delay
-        Cursor.Position = new System.Drawing.Point(currentPos.X - 1, currentPos.Y);
+        Cursor.Position = new System.Drawing.Point(currentPos.X - randomX2, currentPos.Y);
     }
 
     static async Task<string> GetSystemInfoAsync()
