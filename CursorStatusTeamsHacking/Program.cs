@@ -55,15 +55,22 @@ class Program
             {
                 if ((DateTime.Now - lastMoved).TotalMinutes >= timer)
                 {
-                    MoveMouseSlightly();
+                    //MoveMouseSlightly();
                     lastMoved = DateTime.Now;
                     GetCursorPos(out lastPos); // Update last position after move
-                    PressRandomNumbers();
+                    //PressRandomNumbers();
+                    PressScrollLockKey();
                 }
             }
 
             Thread.Sleep(1000);
         }
+    }
+
+    static void PressScrollLockKey()
+    {
+        SendKeys.SendWait("{SCROLLLOCK}");
+        Thread.Sleep(100);
     }
 
     static void PressRandomNumbers()
@@ -84,7 +91,7 @@ class Program
         int randomX2 = random.Next(1, 31);
 
         Cursor.Position = new System.Drawing.Point(currentPos.X + randomX1, currentPos.Y);
-        Thread.Sleep(50); // Short delay
+        Thread.Sleep(50); // Short delay TODO PROBAR PONER EN 100
         Cursor.Position = new System.Drawing.Point(currentPos.X - randomX2, currentPos.Y);
     }
 
