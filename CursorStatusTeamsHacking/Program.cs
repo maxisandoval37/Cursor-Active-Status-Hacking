@@ -3,8 +3,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-//Este script mantiene el cursor activo al moverlo ligeramente
-//después de x minutos de inactividad, evitando que el sistema entre en estado inactivo.
+//This script keeps the cursor active when you move it slightly
+//after x minutes of inactivity, preventing the system from going into idle state.
+
 class Program
 {
     [DllImport("user32.dll")]
@@ -17,16 +18,27 @@ class Program
         public int Y;
     }
 
+    // ----CUSTOM COMPLETE---- //
     static private readonly int timer = 1;
+    static private readonly int startHour = 9;
+    static private readonly int finishHour = 18;
+    // ---------------------- //
 
     static void Main()
     {
         POINT lastPos;
         GetCursorPos(out lastPos);
-        DateTime lastMoved = DateTime.Now; //records the last time the cursor moved
+        DateTime lastMoved = DateTime.Now;
 
         while (true)
         {
+            int currentHour = DateTime.Now.Hour;
+            if (currentHour < startHour || currentHour >= finishHour)
+            {
+                // Case: Outside of permitted hours. The program will stop.
+                break; // Exit the loop and finish execution.
+            }
+
             POINT currentPos;
             GetCursorPos(out currentPos);
 
@@ -45,7 +57,7 @@ class Program
                 }
             }
 
-            Thread.Sleep(1000); // Check every second
+            Thread.Sleep(1000);
         }
     }
 
@@ -54,10 +66,8 @@ class Program
         POINT currentPos;
         GetCursorPos(out currentPos);
 
-        // Move cursor slightly to the right
         Cursor.Position = new System.Drawing.Point(currentPos.X + 1, currentPos.Y);
         Thread.Sleep(50); // Short delay
-        // Move cursor slightly to the left
         Cursor.Position = new System.Drawing.Point(currentPos.X - 1, currentPos.Y);
     }
 }
