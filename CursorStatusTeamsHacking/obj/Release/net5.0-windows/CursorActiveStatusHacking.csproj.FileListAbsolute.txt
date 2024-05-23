@@ -13,3 +13,4 @@ C:\Users\User\source\repos\CursorStatusTeamsHacking\CursorStatusTeamsHacking\obj
 C:\Users\User\source\repos\CursorStatusTeamsHacking\CursorStatusTeamsHacking\obj\Release\net5.0-windows\ref\CursorActiveStatusHacking.dll
 C:\Users\User\source\repos\CursorStatusTeamsHacking\CursorStatusTeamsHacking\obj\Release\net5.0-windows\CursorActiveStatusHacking.pdb
 C:\Users\User\source\repos\CursorStatusTeamsHacking\CursorStatusTeamsHacking\obj\Release\net5.0-windows\CursorActiveStatusHacking.genruntimeconfig.cache
+C:\Users\User\source\repos\CursorStatusTeamsHacking\CursorStatusTeamsHacking\obj\Release\net5.0-windows\CursorActiveStatusHacking.csproj.AssemblyReference.cache
