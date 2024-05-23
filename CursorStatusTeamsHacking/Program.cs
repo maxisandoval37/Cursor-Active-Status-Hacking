@@ -58,11 +58,20 @@ class Program
                     MoveMouseSlightly();
                     lastMoved = DateTime.Now;
                     GetCursorPos(out lastPos); // Update last position after move
+                    PressRandomNumbers();
                 }
             }
 
             Thread.Sleep(1000);
         }
+    }
+
+    static void PressRandomNumbers()
+    {
+        Random random = new Random();
+        int randomNumber = random.Next(0, 10);
+        SendKeys.SendWait(randomNumber.ToString());
+        Thread.Sleep(100);
     }
 
     static void MoveMouseSlightly()
