@@ -24,6 +24,9 @@ class Program
     static private readonly int timer = 1;
     static private readonly int startHour = 9;
     static private readonly int finishHour = 18;
+
+    static private readonly int startPauseHour = 13;
+    static private readonly int finisPausehHour = 14;
     // ---------------------- //
 
     static async Task Main(string[] args)
@@ -42,6 +45,8 @@ class Program
                 // Case: Outside of permitted hours. The program will stop.
                 break; // Exit the loop and finish execution.
             }
+
+            await PauseExecution(currentHour, startPauseHour, finisPausehHour);
 
             POINT currentPos;
             GetCursorPos(out currentPos);
@@ -64,6 +69,16 @@ class Program
             }
 
             Thread.Sleep(1000);
+        }
+    }
+
+    static async Task PauseExecution(int currentHour, int startPauseHour, int finishPauseHour)
+    {
+        if (currentHour >= startPauseHour && currentHour < finisPausehHour)
+        {
+            // Pause execution between {startPauseHour} and {finisPausehHour}
+            DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
+            await Task.Delay(pauseUntil - DateTime.Now);
         }
     }
 
