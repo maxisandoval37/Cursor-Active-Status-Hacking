@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 //This script keeps the cursor active when you move it slightly
 //after x minutes of inactivity, preventing the system from going into idle state.
-
 class Program
 {
     [DllImport("user32.dll")]
@@ -39,48 +38,19 @@ class Program
 
         while (true)
         {
-            await WaitUntilWeekday();
-
             int currentHour = DateTime.Now.Hour;
-            if (currentHour < startHour || currentHour >= finishHour)
+
+            await WaitUntilWeekday();
+            
+            if (IsWithinWorkingHours(currentHour, startHour, finishHour))
             {
-                // Case: Outside of permitted hours. The program will stop.
-                break; // Exit the loop and finish execution.
+                break;
             }
 
             await PauseExecution(currentHour, startPauseHour, finisPausehHour);
 
-            POINT currentPos;
-            GetCursorPos(out currentPos);
-
-            if (currentPos.X != lastPos.X || currentPos.Y != lastPos.Y)
-            {
-                lastPos = currentPos;
-                lastMoved = DateTime.Now;
-            }
-            else
-            {
-                if ((DateTime.Now - lastMoved).TotalMinutes >= timer)
-                {
-                    //MoveMouseSlightly();
-                    lastMoved = DateTime.Now;
-                    GetCursorPos(out lastPos); // Update last position after move
-                    //PressRandomNumbers();
-                    PressScrollLockKey();
-                }
-            }
-
+            CheckInactivity(ref lastPos, ref lastMoved);
             Thread.Sleep(1000);
-        }
-    }
-
-    static async Task PauseExecution(int currentHour, int startPauseHour, int finishPauseHour)
-    {
-        if (currentHour >= startPauseHour && currentHour < finisPausehHour)
-        {
-            // Pause execution between {startPauseHour} and {finisPausehHour}
-            DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
-            await Task.Delay(pauseUntil - DateTime.Now);
         }
     }
 
@@ -96,32 +66,47 @@ class Program
         }
     }
 
-    static void PressScrollLockKey()
+    static bool IsWithinWorkingHours(int currentHour, int startHour, int finishHour)
     {
-        SendKeys.SendWait("{SCROLLLOCK}");
-        Thread.Sleep(100);
+        // Case: Outside of permitted hours. The program will stop.
+        return currentHour >= startHour && currentHour < finishHour;
     }
 
-    static void PressRandomNumbers()
+    static async Task PauseExecution(int currentHour, int startPauseHour, int finishPauseHour)
     {
-        Random random = new Random();
-        int randomNumber = random.Next(0, 10);
-        SendKeys.SendWait(randomNumber.ToString());
-        Thread.Sleep(100);
+        if (currentHour >= startPauseHour && currentHour < finisPausehHour)
+        {
+            // Pause execution between {startPauseHour} and {finisPausehHour}
+            DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
+            await Task.Delay(pauseUntil - DateTime.Now);
+        }
     }
 
-    static void MoveMouseSlightly()
+    static void CheckInactivity(ref POINT lastPos, ref DateTime lastMoved)
     {
         POINT currentPos;
         GetCursorPos(out currentPos);
 
-        Random random = new Random();
-        int randomX1 = random.Next(1, 31);
-        int randomX2 = random.Next(1, 31);
+        if (currentPos.X != lastPos.X || currentPos.Y != lastPos.Y)
+        {
+            lastPos = currentPos;
+            lastMoved = DateTime.Now;
+        }
+        else
+        {
+            if ((DateTime.Now - lastMoved).TotalMinutes >= timer)
+            {
+                lastMoved = DateTime.Now;
+                GetCursorPos(out lastPos); // Update last position after move
+                PressScrollLockKey();
+            }
+        }
+    }
 
-        Cursor.Position = new System.Drawing.Point(currentPos.X + randomX1, currentPos.Y);
-        Thread.Sleep(50); // Short delay TODO PROBAR PONER EN 100
-        Cursor.Position = new System.Drawing.Point(currentPos.X - randomX2, currentPos.Y);
+    static void PressScrollLockKey()
+    {
+        SendKeys.SendWait("{SCROLLLOCK}");
+        Thread.Sleep(100);
     }
 
     static async Task<string> GetSystemInfoAsync()
