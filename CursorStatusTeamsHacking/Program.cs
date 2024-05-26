@@ -25,7 +25,7 @@ class Program
     static private readonly int finishHour = 18;
 
     static private readonly int startPauseHour = 13;
-    static private readonly int finisPausehHour = 14;
+    static private readonly int finishPauseHour = 14;
     // ---------------------- //
 
     static async Task Main(string[] args)
@@ -38,20 +38,28 @@ class Program
 
         while (true)
         {
-            int currentHour = DateTime.Now.Hour;
-
-            await WaitUntilWeekday();
-            
-            if (IsWithinWorkingHours(currentHour, startHour, finishHour))
+            if (!await IsValidTimePeriod(startHour, finishHour, startPauseHour, finishPauseHour))
             {
                 break;
             }
 
-            await PauseExecution(currentHour, startPauseHour, finisPausehHour);
-
             CheckInactivity(ref lastPos, ref lastMoved);
             Thread.Sleep(1000);
         }
+    }
+
+    static async Task<bool> IsValidTimePeriod(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
+    {
+        int currentHour = DateTime.Now.Hour;
+        await WaitUntilWeekday();
+
+        if (currentHour < startHour || currentHour >= finishHour)
+        {
+            return false; // Outside working hours
+        }
+
+        await PauseExecution(currentHour, startPauseHour, finishPauseHour);
+        return true;
     }
 
     static async Task WaitUntilWeekday()
@@ -66,15 +74,9 @@ class Program
         }
     }
 
-    static bool IsWithinWorkingHours(int currentHour, int startHour, int finishHour)
-    {
-        // Case: Outside of permitted hours. The program will stop.
-        return currentHour >= startHour && currentHour < finishHour;
-    }
-
     static async Task PauseExecution(int currentHour, int startPauseHour, int finishPauseHour)
     {
-        if (currentHour >= startPauseHour && currentHour < finisPausehHour)
+        if (currentHour >= startPauseHour && currentHour < finishPauseHour)
         {
             // Pause execution between {startPauseHour} and {finisPausehHour}
             DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
