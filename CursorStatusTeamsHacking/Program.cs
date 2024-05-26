@@ -39,6 +39,8 @@ class Program
 
         while (true)
         {
+            await WaitUntilWeekday();
+
             int currentHour = DateTime.Now.Hour;
             if (currentHour < startHour || currentHour >= finishHour)
             {
@@ -79,6 +81,18 @@ class Program
             // Pause execution between {startPauseHour} and {finisPausehHour}
             DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
             await Task.Delay(pauseUntil - DateTime.Now);
+        }
+    }
+
+    static async Task WaitUntilWeekday()
+    {
+        // Check if it's a weekday (Monday to Friday)
+        DayOfWeek currentDay = DateTime.Now.DayOfWeek;
+        if (currentDay == DayOfWeek.Saturday || currentDay == DayOfWeek.Sunday)
+        {
+            DateTime nextWeekday = DateTime.Now.AddDays((int)(DayOfWeek.Monday - currentDay + 7) % 7);
+            TimeSpan waitTime = nextWeekday.Date - DateTime.Now;
+            await Task.Delay(waitTime);
         }
     }
 
