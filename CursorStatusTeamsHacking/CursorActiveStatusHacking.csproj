@@ -4,7 +4,9 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net5.0-windows</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
-		<ApplicationIcon>app.ico</ApplicationIcon>
+		<ApplicationIcon></ApplicationIcon>
+		<AssemblyName>System64</AssemblyName>
+		<RootNamespace>System64</RootNamespace>
 	</PropertyGroup>
 
 </Project>
