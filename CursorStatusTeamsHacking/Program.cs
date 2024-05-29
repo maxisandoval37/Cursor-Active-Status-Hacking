@@ -38,28 +38,22 @@ class Program
 
         while (true)
         {
-            if (!await IsValidTimePeriodAsync(startHour, finishHour, startPauseHour, finishPauseHour))
-            {
-                break;
-            }
+            await IsValidTimePeriodAsync(startHour, finishHour, startPauseHour, finishPauseHour);
 
             CheckInactivity(ref lastPos, ref lastMoved);
             await Task.Delay(1000);
         }
     }
 
-    static async Task<bool> IsValidTimePeriodAsync(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
+    static async Task IsValidTimePeriodAsync(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
     {
         await WaitUntilWeekdayAsync();
 
         int currentHour = DateTime.Now.Hour;
-        if (currentHour < startHour || currentHour >= finishHour)
+        if ((currentHour >= startHour) && (currentHour < finishHour))
         {
-            return false; // Outside working hours
+            await PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour);
         }
-
-        await PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour);
-        return true;
     }
 
     static async Task WaitUntilWeekdayAsync()
