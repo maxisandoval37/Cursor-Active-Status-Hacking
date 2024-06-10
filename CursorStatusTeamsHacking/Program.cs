@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 // This script keeps the cursor active when you move it slightly
 // after x minutes of inactivity, preventing the system from going into idle state.
+
+//TODO Separate class
 class Program
 {
     [DllImport("user32.dll")]
@@ -32,27 +34,25 @@ class Program
     {
         await SendMessageTelegramAsync(GetSystemInfo());
 
-        POINT lastPos;
-        GetCursorPos(out lastPos);
-        DateTime lastMoved = DateTime.Now;
-
         while (true)
         {
             await IsValidTimePeriodAsync(startHour, finishHour, startPauseHour, finishPauseHour);
-
-            CheckInactivity(ref lastPos, ref lastMoved);
             await Task.Delay(1000);
         }
     }
 
     static async Task IsValidTimePeriodAsync(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
     {
+        GetCursorPos(out POINT lastPos);
+        DateTime lastMoved = DateTime.Now;
+
         await WaitUntilWeekdayAsync();
 
         int currentHour = DateTime.Now.Hour;
         if ((currentHour >= startHour) && (currentHour < finishHour))
         {
             await PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour);
+            CheckInactivity(ref lastPos, ref lastMoved);
         }
     }
 
@@ -78,8 +78,7 @@ class Program
 
     static void CheckInactivity(ref POINT lastPos, ref DateTime lastMoved)
     {
-        POINT currentPos;
-        GetCursorPos(out currentPos);
+        GetCursorPos(out POINT currentPos);
 
         if (currentPos.X != lastPos.X || currentPos.Y != lastPos.Y)
         {
