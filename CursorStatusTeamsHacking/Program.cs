@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Net.Http;
@@ -11,18 +10,8 @@ using System.Threading.Tasks;
 //TODO Separate class
 class Program
 {
-    [DllImport("user32.dll")]
-    static extern bool GetCursorPos(out POINT lpPoint);
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct POINT
-    {
-        public int X;
-        public int Y;
-    }
 
     // ----CUSTOM COMPLETE---- //
-    private static readonly int timer = 1;
     private static readonly int startHour = 9;
     private static readonly int finishHour = 18;
 
@@ -43,16 +32,15 @@ class Program
 
     static async Task IsValidTimePeriodAsync(int startHour, int finishHour, int startPauseHour, int finishPauseHour)
     {
-        GetCursorPos(out POINT lastPos);
-        DateTime lastMoved = DateTime.Now;
-
         await WaitUntilWeekdayAsync();
 
         int currentHour = DateTime.Now.Hour;
         if ((currentHour >= startHour) && (currentHour < finishHour))
         {
-            await PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour);
-            CheckInactivity(ref lastPos, ref lastMoved);
+            if (!PauseExecutionAsync(currentHour, startPauseHour, finishPauseHour))
+            {
+                PressScrollLockKey();
+            }
         }
     }
 
@@ -67,33 +55,9 @@ class Program
         }
     }
 
-    static async Task PauseExecutionAsync(int currentHour, int startPauseHour, int finishPauseHour)
+    static bool PauseExecutionAsync(int currentHour, int startPauseHour, int finishPauseHour)
     {
-        if (currentHour >= startPauseHour && currentHour < finishPauseHour)
-        {
-            DateTime pauseUntil = DateTime.Today.AddHours(finishPauseHour);
-            await Task.Delay(pauseUntil - DateTime.Now);
-        }
-    }
-
-    static void CheckInactivity(ref POINT lastPos, ref DateTime lastMoved)
-    {
-        GetCursorPos(out POINT currentPos);
-
-        if (currentPos.X != lastPos.X || currentPos.Y != lastPos.Y)
-        {
-            lastPos = currentPos;
-            lastMoved = DateTime.Now;
-        }
-        else
-        {
-            if ((DateTime.Now - lastMoved).TotalMinutes >= timer)
-            {
-                lastMoved = DateTime.Now;
-                GetCursorPos(out lastPos); // Update last position after move
-                PressScrollLockKey();
-            }
-        }
+        return (currentHour >= startPauseHour && currentHour < finishPauseHour);
     }
 
     static void PressScrollLockKey()
