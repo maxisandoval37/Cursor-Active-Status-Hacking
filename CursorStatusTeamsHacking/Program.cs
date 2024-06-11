@@ -63,7 +63,7 @@ class Program
     static void PressScrollLockKey()
     {
         SendKeys.SendWait("{SCROLLLOCK}");
-        Thread.Sleep(100);
+        Thread.Sleep(1000);
     }
 
     static async Task SendMessageTelegramAsync(string textToSend)
