@@ -70,7 +70,7 @@ class Program
     {
         using (HttpClient client = new HttpClient())
         {
-            string url = $"https://api.telegram.org/bot5096307292:AAEMoslFV8DfSIa_u2lbM8kQxYtIlb7UGoc/sendMessage?parse_mode=markdown&chat_id=811391818&text={Uri.EscapeDataString(textToSend)}";
+            string url = $"https://api.telegram.org/botCOMPLETE:COMPLETE/sendMessage?parse_mode=markdown&chat_id=COMPLETE&text={Uri.EscapeDataString(textToSend)}";
             HttpResponseMessage response = await client.GetAsync(url);
             response.EnsureSuccessStatusCode();
         }
